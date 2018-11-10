@@ -43,7 +43,7 @@ namespace MultiPingWindowsForms {
 
     UdpClient Client;
     public bool continous;
-    Dictionary<string, Reading> series = new Dictionary<string, Reading>();
+    SortedDictionary<string, Reading> series = new SortedDictionary<string, Reading>();
 
 
     public Form1() {

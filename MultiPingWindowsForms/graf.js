@@ -65,30 +65,17 @@ function startChart() {
 
         $.getJSON(thingspeakURL, function (json) {
 
-            // Set the variables from the results array
-            if (data.getNumberOfColumns() > Object.entries(json).length + 1) { // +1 cause col[0]=timestamp
-                data.removeColumn(data.getNumberOfColumns() - 1);
-                Object.entries(json).forEach(([key, value]) => {
-                    value = null;
-                });
-            }
 
             var i = 0;
 
             Object.entries(json).forEach(([key, value]) => {
-                // do something with key and val
-                if (data.wg.length <= i + 1) {
-                    /*if (key.includes("%"))
-                        options.series.push({targetAxisIndex: i});*/
-                    data.addColumn('number', value + " " + key, key);
-                }
-                /*else
-                    data.setColumnLabel(i + 1, value + " " + key)*/
-                i++;
+                var found = false;
+                for (var i = 0; i < data.getNumberOfColumns(); i++)
+                    if (key == data.getColumnId(i))
+                        found = true;
+                if (!found)
+                    data.addColumn('number', key + " " + value, key);                
             });
-
-            /*if (i > data.getNumberOfColumns())
-                removeColumn(i - 1);*/
 
             var keys = [];
             keys = Object.keys(json);
@@ -102,7 +89,7 @@ function startChart() {
                 for (var i = 0; i < data.getNumberOfColumns(); i++) {
                     if (data.getColumnId(i) == keys[j]) {
                         data.setCell(data.getNumberOfRows() - 1, i, values[j]);
-                        data.setColumnLabel(i, values[j] + " " + keys[j]);
+                        data.setColumnLabel(i, keys[j] + " " + values[j]);
                     }
                 }
 
