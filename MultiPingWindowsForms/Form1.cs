@@ -33,10 +33,11 @@ namespace MultiPingWindowsForms {
           val = value;
         }
       }
+      public IPAddress IP;
       public
-      Reading(double d) {
-        time = DateTime.Now;
-        val = d;
+      Reading(double d, IPAddress address) {
+        Val = d;
+        IP = address;
       }
 
     }
@@ -64,7 +65,7 @@ namespace MultiPingWindowsForms {
     private void Timer_Tick(object sender, EventArgs e) {
       List<string> list = new List<string>();
       foreach (var reading in series) {
-        if (reading.Value.Time < DateTime.Now.AddMinutes(-5))
+        if (reading.Value.Time < DateTime.Now.AddMinutes(-1))
           list.Add(reading.Key);
       }
       foreach (var r in list)
@@ -110,8 +111,8 @@ namespace MultiPingWindowsForms {
 
 
       for (int i = 0; i < series.Count(); i++) {
-        var y = this.Height / (series.Count) * i+5;
-        var h = this.Height / (series.Count) - 10;
+        var y = this.Height / (series.Count + 1) * i + 5;
+        var h = this.Height / (series.Count + 1) - 10;
         DrawString(myBuffer, 10, y, h, series.ElementAt(i).Value.Val, series.ElementAt(i).Key);
       }
 
@@ -183,7 +184,7 @@ namespace MultiPingWindowsForms {
                 double d = 0;
                 d = Double.Parse(split[1]);
                 var name = split[0];
-                series[name] = new Reading(d);
+                series[name] = new Reading(d, RemoteIpEndPoint.Address);
                //this.Invalidate();
               }));         
         }
@@ -208,10 +209,22 @@ namespace MultiPingWindowsForms {
       } else
         if (request.RawUrl == "/graf.js") {
         return File.ReadAllText(@"graf.js");
+      } else
+        if (request.RawUrl == "/devices") {
+        return DeviceListHTML();
       }
       return "";
 
     }
+
+    private string DeviceListHTML() {
+      string s = @"<html>  <head>    <meta http-equiv='refresh' content='60'/>    <title>Device list</title>    <style>      body { background-color: #000000; font-family: Arial, Helvetica, Sans-Serif; Color: #777777; }    </style>  </head>  <body>  ";
+      foreach (var ser in series)
+        s += "<p><a href=\"http://" + ser.Value.IP + "\"> " + ser.Value.IP + " </a>" + ser.Key + " " + ser.Value.Val + "</p>";
+      s += "</body> </html>";
+      return s;
+    }
+
 
   }
 }
